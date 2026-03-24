@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PerfPro — Performance Marketing Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3d;
+    --meta: #1877F2;
+    --meta-light: #4fa3ff;
+    --google: #EA4335;
+    --google-green: #34A853;
+    --google-yellow: #FBBC05;
+    --accent: #7c3aed;
+    --accent2: #06d6a0;
+    --text: #f0f0f5;
+    --muted: #7a7a9a;
+    --tag-bg: #1e1e30;
+    --success: #06d6a0;
+    --warning: #fbbf24;
+    --danger: #ef4444;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; }
+
+  /* ─── NAV ─── */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 36px; border-bottom: 1px solid var(--border);
+    background: rgba(10,10,15,0.85); backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .logo sub { font-size: 0.55rem; color: var(--muted); font-weight: 400; vertical-align: middle; margin-left: 4px; font-family: 'JetBrains Mono'; }
+  .nav-tabs { display: flex; gap: 6px; }
+  .nav-tab {
+    padding: 7px 16px; border-radius: 6px; border: 1px solid transparent;
+    cursor: pointer; font-family: 'Syne', sans-serif; font-size: 0.82rem; font-weight: 600;
+    background: transparent; color: var(--muted); transition: all 0.2s;
+  }
+  .nav-tab:hover { color: var(--text); border-color: var(--border); }
+  .nav-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .xp-badge {
+    font-family: 'JetBrains Mono'; font-size: 0.78rem;
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 5px 12px; border-radius: 20px; color: var(--accent2);
+  }
+
+  /* ─── PAGES ─── */
+  .page { display: none; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 60px 36px 40px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; max-width: 1100px; margin: 0 auto;
+  }
+  .hero-title { font-size: 3rem; font-weight: 800; line-height: 1.1; letter-spacing: -1px; }
+  .hero-title .grad { background: linear-gradient(135deg, var(--meta-light), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero-sub { color: var(--muted); margin-top: 14px; line-height: 1.7; font-size: 0.95rem; }
+  .hero-cta { margin-top: 28px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-family: 'Syne'; font-weight: 700; font-size: 0.88rem; transition: all 0.2s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #6d28d9; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,58,237,0.3); }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; text-align: center;
+  }
+  .stat-card .num { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+  .stat-card .lbl { font-size: 0.72rem; color: var(--muted); margin-top: 4px; font-family: 'JetBrains Mono'; }
+
+  /* ─── SECTION HEADER ─── */
+  .section-header { padding: 32px 36px 16px; max-width: 1100px; margin: 0 auto; }
+  .section-title { font-size: 1.4rem; font-weight: 800; }
+  .section-sub { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+
+  /* ─── MODULE GRID ─── */
+  .modules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; padding: 0 36px 40px; max-width: 1100px; margin: 0 auto; }
+  .module-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px; cursor: pointer; transition: all 0.25s; position: relative; overflow: hidden;
+  }
+  .module-card::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s; }
+  .module-card.meta::before { background: linear-gradient(135deg, rgba(24,119,242,0.07), transparent); }
+  .module-card.google::before { background: linear-gradient(135deg, rgba(234,67,53,0.07), transparent); }
+  .module-card.mixed::before { background: linear-gradient(135deg, rgba(124,58,237,0.07), transparent); }
+  .module-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .module-card:hover::before { opacity: 1; }
+  .module-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .platform-badge {
+    font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+    font-family: 'JetBrains Mono'; letter-spacing: 0.5px;
+  }
+  .platform-badge.meta { background: rgba(24,119,242,0.15); color: var(--meta-light); }
+  .platform-badge.google { background: rgba(234,67,53,0.15); color: #ff7b72; }
+  .platform-badge.mixed { background: rgba(124,58,237,0.15); color: #a78bfa; }
+  .diff-dots { display: flex; gap: 3px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); }
+  .dot.filled.easy { background: var(--success); }
+  .dot.filled.medium { background: var(--warning); }
+  .dot.filled.hard { background: var(--danger); }
+  .module-title { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+  .module-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+  .module-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+  .task-count { font-size: 0.72rem; color: var(--muted); font-family: 'JetBrains Mono'; }
+  .progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 10px; }
+  .progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.4s; }
+
+  /* ─── LEARN PAGE ─── */
+  .learn-layout { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 61px); }
+  .sidebar {
+    border-right: 1px solid var(--border); padding: 24px 0; position: sticky; top: 61px;
+    height: calc(100vh - 61px); overflow-y: auto;
+  }
+  .sidebar-group { margin-bottom: 8px; }
+  .sidebar-group-label { font-size: 0.65rem; color: var(--muted); font-family: 'JetBrains Mono'; padding: 8px 20px 4px; letter-spacing: 1px; text-transform: uppercase; }
+  .sidebar-item {
+    padding: 9px 20px; cursor: pointer; font-size: 0.82rem; color: var(--muted);
+    transition: all 0.15s; display: flex; align-items: center; gap: 8px; border-left: 2px solid transparent;
+  }
+  .sidebar-item:hover { color: var(--text); background: var(--surface); }
+  .sidebar-item.active { color: var(--text); background: var(--surface); border-left-color: var(--accent); }
+  .sidebar-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .content-area { padding: 32px 40px; max-width: 780px; }
+  .lesson-header { margin-bottom: 28px; }
+  .lesson-platform { font-size: 0.7rem; font-family: 'JetBrains Mono'; color: var(--muted); margin-bottom: 8px; }
+  .lesson-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; }
+  .lesson-body { font-size: 0.9rem; line-height: 1.8; color: #c8c8dd; }
+  .lesson-body h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin: 22px 0 8px; }
+  .lesson-body p { margin-bottom: 12px; }
+  .tip-box {
+    background: rgba(6,214,160,0.07); border: 1px solid rgba(6,214,160,0.2);
+    border-radius: 10px; padding: 14px 18px; margin: 16px 0; font-size: 0.83rem;
+  }
+  .tip-box strong { color: var(--accent2); }
+  .warn-box {
+    background: rgba(251,191,36,0.07); border: 1px solid rgba(251,191,36,0.2);
+    border-radius: 10px; padding: 14px 18px; margin: 16px 0; font-size: 0.83rem;
+  }
+  .warn-box strong { color: var(--warning); }
+  .code-block {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 16px; font-family: 'JetBrains Mono'; font-size: 0.78rem; color: #a0f0d0;
+    margin: 12px 0; overflow-x: auto; line-height: 1.7;
+  }
+
+  /* ─── TASKS PAGE ─── */
+  .tasks-container { padding: 32px 36px; max-width: 900px; margin: 0 auto; }
+  .task-filters { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .filter-btn {
+    padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); cursor: pointer; font-family: 'Syne'; font-size: 0.78rem;
+    transition: all 0.2s;
+  }
+  .filter-btn.active, .filter-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,58,237,0.1); }
+  .task-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px; margin-bottom: 14px; transition: all 0.2s;
+  }
+  .task-card:hover { border-color: var(--accent); }
+  .task-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .task-title { font-size: 1rem; font-weight: 700; }
+  .task-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .tag { font-size: 0.65rem; padding: 2px 9px; border-radius: 12px; font-family: 'JetBrains Mono'; background: var(--tag-bg); color: var(--muted); }
+  .task-desc { font-size: 0.83rem; color: var(--muted); margin-top: 10px; line-height: 1.6; }
+  .task-steps { margin-top: 14px; }
+  .task-step { display: flex; gap: 10px; align-items: flex-start; font-size: 0.82rem; margin-bottom: 8px; color: #c8c8dd; }
+  .step-num { background: var(--surface2); border: 1px solid var(--border); border-radius: 50%; width: 22px; height: 22px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-family: 'JetBrains Mono'; color: var(--accent); }
+  .task-complete-btn {
+    margin-top: 14px; padding: 8px 20px; background: transparent; border: 1px solid var(--success);
+    color: var(--success); border-radius: 6px; cursor: pointer; font-family: 'Syne'; font-size: 0.8rem; font-weight: 600;
+    transition: all 0.2s;
+  }
+  .task-complete-btn:hover { background: rgba(6,214,160,0.1); }
+  .task-complete-btn.done { background: rgba(6,214,160,0.15); }
+  .xp-chip { font-size: 0.7rem; font-family: 'JetBrains Mono'; color: var(--accent2); background: rgba(6,214,160,0.1); padding: 3px 9px; border-radius: 10px; }
+
+  /* ─── SHORTCUTS PAGE ─── */
+  .shortcuts-container { padding: 32px 36px; max-width: 1000px; margin: 0 auto; }
+  .shortcuts-tabs { display: flex; gap: 8px; margin-bottom: 28px; }
+  .sh-tab {
+    padding: 8px 20px; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); cursor: pointer; font-family: 'Syne'; font-weight: 600; font-size: 0.85rem; transition: all 0.2s;
+  }
+  .sh-tab.meta.active { background: rgba(24,119,242,0.15); border-color: var(--meta); color: var(--meta-light); }
+  .sh-tab.google.active { background: rgba(234,67,53,0.15); border-color: var(--google); color: #ff7b72; }
+  .sh-tab:not(.active):hover { border-color: var(--border); color: var(--text); }
+  .shortcuts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .shortcut-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; display: flex; flex-direction: column; gap: 8px; transition: border-color 0.2s;
+  }
+  .shortcut-card:hover { border-color: var(--accent); }
+  .shortcut-keys { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+  .key {
+    background: var(--surface2); border: 1px solid var(--border); border-bottom-width: 2px;
+    border-radius: 5px; padding: 2px 8px; font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--text);
+  }
+  .key-plus { color: var(--muted); font-size: 0.7rem; }
+  .shortcut-action { font-size: 0.85rem; font-weight: 600; }
+  .shortcut-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+  .shortcut-context { font-size: 0.65rem; font-family: 'JetBrains Mono'; color: var(--accent); }
+
+  /* ─── QUIZ PAGE ─── */
+  .quiz-container { padding: 40px 36px; max-width: 680px; margin: 0 auto; }
+  .quiz-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; }
+  .quiz-progress { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .quiz-num { font-family: 'JetBrains Mono'; font-size: 0.8rem; color: var(--muted); }
+  .quiz-bar { flex: 1; height: 3px; background: var(--border); border-radius: 2px; margin: 0 16px; }
+  .quiz-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s; }
+  .quiz-q { font-size: 1.1rem; font-weight: 700; margin-bottom: 22px; line-height: 1.5; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option {
+    padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px;
+    cursor: pointer; font-size: 0.88rem; color: var(--muted); transition: all 0.2s; background: var(--surface2);
+  }
+  .quiz-option:hover:not(.selected):not(.locked) { border-color: var(--accent); color: var(--text); }
+  .quiz-option.correct { border-color: var(--success); background: rgba(6,214,160,0.1); color: var(--success); }
+  .quiz-option.wrong { border-color: var(--danger); background: rgba(239,68,68,0.1); color: var(--danger); }
+  .quiz-feedback { margin-top: 18px; padding: 14px; border-radius: 8px; font-size: 0.85rem; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: rgba(6,214,160,0.07); border: 1px solid rgba(6,214,160,0.2); color: var(--success); }
+  .quiz-feedback.wrong { background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.2); color: #ff7b72; }
+  .quiz-next { margin-top: 18px; width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-family: 'Syne'; font-weight: 700; font-size: 0.9rem; display: none; transition: background 0.2s; }
+  .quiz-next:hover { background: #6d28d9; }
+  .quiz-next.show { display: block; }
+  .quiz-result { text-align: center; padding: 20px 0; }
+  .quiz-score { font-size: 3rem; font-weight: 800; color: var(--accent); }
+  .quiz-score-sub { color: var(--muted); font-size: 0.9rem; margin-top: 6px; }
+  .quiz-restart { margin-top: 20px; padding: 12px 28px; background: var(--accent); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-family: 'Syne'; font-weight: 700; }
+
+  /* ─── GLOSSARY ─── */
+  .glossary-container { padding: 32px 36px; max-width: 900px; margin: 0 auto; }
+  .glossary-search {
+    width: 100%; padding: 12px 18px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text); font-family: 'Syne'; font-size: 0.9rem; margin-bottom: 24px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .glossary-search:focus { border-color: var(--accent); }
+  .glossary-item { padding: 16px 0; border-bottom: 1px solid var(--border); }
+  .glossary-term { font-size: 0.95rem; font-weight: 700; color: var(--accent2); margin-bottom: 6px; }
+  .glossary-def { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+  .glossary-platform { font-size: 0.65rem; font-family: 'JetBrains Mono'; margin-top: 4px; }
+
+  /* ─── YOUTUBE SECTION ─── */
+  .yt-section { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .yt-section-title {
+    font-size: 0.72rem; font-family: 'JetBrains Mono'; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .yt-section-title::before {
+    content: '▶'; width: 20px; height: 20px; background: #FF0000;
+    border-radius: 4px; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; color: #fff; flex-shrink: 0;
+  }
+  .yt-grid { display: flex; flex-direction: column; gap: 16px; }
+  .yt-card {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .yt-card:hover { border-color: rgba(255,0,0,0.4); }
+  .yt-embed-wrap {
+    position: relative; width: 100%; padding-top: 56.25%; /* 16:9 */
+    background: #000; cursor: pointer;
+  }
+  .yt-thumbnail {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.85;
+  }
+  .yt-play-btn {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 56px; height: 56px; background: rgba(255,0,0,0.9); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5); transition: transform 0.2s, background 0.2s;
+  }
+  .yt-embed-wrap:hover .yt-play-btn { transform: translate(-50%,-50%) scale(1.1); background: #FF0000; }
+  .yt-play-btn::after { content: '▶'; color: #fff; font-size: 1.1rem; margin-left: 3px; }
+  .yt-embed-wrap iframe {
+    position: absolute; inset: 0; width: 100%; height: 100%; border: none;
+  }
+  .yt-info { padding: 12px 16px; }
+  .yt-video-title { font-size: 0.88rem; font-weight: 700; line-height: 1.4; margin-bottom: 4px; }
+  .yt-channel { font-size: 0.72rem; color: var(--muted); font-family: 'JetBrains Mono'; }
+  .yt-tag { font-size: 0.62rem; padding: 2px 7px; border-radius: 8px; background: rgba(255,0,0,0.1); color: #ff7b72; font-family: 'JetBrains Mono'; margin-left: 6px; }
+
+  /* ─── SCROLL ─── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  @media (max-width: 768px) {
+    .hero { grid-template-columns: 1fr; }
+    .learn-layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    nav { padding: 14px 18px; }
+    .nav-tabs { gap: 4px; }
+    .nav-tab { padding: 6px 10px; font-size: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Perf<span>Pro</span><sub>BETA</sub></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('home')">Home</button>
+    <button class="nav-tab" onclick="showPage('learn')">Learn</button>
+    <button class="nav-tab" onclick="showPage('tasks')">Tasks</button>
+    <button class="nav-tab" onclick="showPage('shortcuts')">Shortcuts</button>
+    <button class="nav-tab" onclick="showPage('quiz')">Quiz</button>
+    <button class="nav-tab" onclick="showPage('glossary')">Glossary</button>
+  </div>
+  <div class="xp-badge" id="xpBadge">⚡ 0 XP</div>
+</nav>
+
+<!-- ═══════ HOME PAGE ═══════ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div>
+      <div class="hero-title">Master <span class="grad">Performance<br>Marketing</span></div>
+      <p class="hero-sub">Build real skills in Meta Ads & Google Ads — tracking, bidding strategies, optimization, and shortcuts. Learn by doing with practical tasks and instant quizzes.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="showPage('learn')">Start Learning →</button>
+        <button class="btn btn-outline" onclick="showPage('tasks')">Practice Tasks</button>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="num">6</div><div class="lbl">MODULES</div></div>
+      <div class="stat-card"><div class="num">18+</div><div class="lbl">TASKS</div></div>
+      <div class="stat-card"><div class="num">40+</div><div class="lbl">SHORTCUTS</div></div>
+      <div class="stat-card"><div class="num">50+</div><div class="lbl">QUIZ QUESTIONS</div></div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Learning Modules</div>
+    <div class="section-sub">Structured tracks across Meta & Google with difficulty levels</div>
+  </div>
+  <div class="modules-grid">
+    <!-- Module cards -->
+    <div class="module-card meta" onclick="openLesson('pixel')">
+      <div class="module-top">
+        <span class="platform-badge meta">META</span>
+        <div class="diff-dots">
+          <div class="dot filled easy"></div><div class="dot filled easy"></div><div class="dot"></div>
+        </div>
+      </div>
+      <div class="module-title">Pixel & Conversion Tracking</div>
+      <div class="module-desc">Set up Meta Pixel, custom events, and the Conversions API for accurate attribution in a cookieless world.</div>
+      <div class="module-footer"><span class="task-count">4 tasks · 8 quiz Qs</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="module-card google" onclick="openLesson('gtag')">
+      <div class="module-top">
+        <span class="platform-badge google">GOOGLE</span>
+        <div class="diff-dots">
+          <div class="dot filled easy"></div><div class="dot filled medium"></div><div class="dot"></div>
+        </div>
+      </div>
+      <div class="module-title">Google Tag & GA4 Setup</div>
+      <div class="module-desc">Implement Google Tag Manager, configure GA4 events, and connect them to Google Ads for full funnel visibility.</div>
+      <div class="module-footer"><span class="task-count">4 tasks · 8 quiz Qs</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="module-card meta" onclick="openLesson('bidding')">
+      <div class="module-top">
+        <span class="platform-badge meta">META</span>
+        <div class="diff-dots">
+          <div class="dot filled medium"></div><div class="dot filled medium"></div><div class="dot"></div>
+        </div>
+      </div>
+      <div class="module-title">Bidding Strategies & Budget</div>
+      <div class="module-desc">Lowest cost, cost cap, bid cap, ROAS targets — when to use each and how to scale profitably.</div>
+      <div class="module-footer"><span class="task-count">3 tasks · 6 quiz Qs</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="module-card google" onclick="openLesson('smart')">
+      <div class="module-top">
+        <span class="platform-badge google">GOOGLE</span>
+        <div class="diff-dots">
+          <div class="dot filled medium"></div><div class="dot filled medium"></div><div class="dot filled hard"></div>
+        </div>
+      </div>
+      <div class="module-title">Smart Bidding & PMax</div>
+      <div class="module-desc">tCPA, tROAS, Maximize Conversions — understanding signals, seasonality adjustments, and PMax asset groups.</div>
+      <div class="module-footer"><span class="task-count">3 tasks · 6 quiz Qs</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="module-card mixed" onclick="openLesson('attribution')">
+      <div class="module-top">
+        <span class="platform-badge mixed">META + GOOGLE</span>
+        <div class="diff-dots">
+          <div class="dot filled hard"></div><div class="dot filled hard"></div><div class="dot filled hard"></div>
+        </div>
+      </div>
+      <div class="module-title">Attribution & Measurement</div>
+      <div class="module-desc">Multi-touch attribution, incrementality tests, MMM basics, and reconciling data across platforms.</div>
+      <div class="module-footer"><span class="task-count">2 tasks · 6 quiz Qs</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="module-card mixed" onclick="openLesson('audience')">
+      <div class="module-top">
+        <span class="platform-badge mixed">META + GOOGLE</span>
+        <div class="diff-dots">
+          <div class="dot filled medium"></div><div class="dot filled medium"></div><div class="dot"></div>
+        </div>
+      </div>
+      <div class="module-title">Audience Strategy</div>
+      <div class="module-desc">Custom audiences, lookalikes, RLSA, Customer Match, audience exclusions and overlap avoidance.</div>
+      <div class="module-footer"><span class="task-count">2 tasks · 6 quiz Qs</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ LEARN PAGE ═══════ -->
+<div id="page-learn" class="page">
+  <div class="learn-layout">
+    <div class="sidebar">
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">META ADS</div>
+        <div class="sidebar-item active" onclick="loadLesson('pixel')"><div class="sidebar-dot" style="background:#4fa3ff"></div>Pixel & Conversion Tracking</div>
+        <div class="sidebar-item" onclick="loadLesson('bidding')"><div class="sidebar-dot" style="background:#4fa3ff"></div>Bidding Strategies</div>
+        <div class="sidebar-item" onclick="loadLesson('capi')"><div class="sidebar-dot" style="background:#4fa3ff"></div>Conversions API (CAPI)</div>
+        <div class="sidebar-item" onclick="loadLesson('metaaudit')"><div class="sidebar-dot" style="background:#4fa3ff"></div>Campaign Auditing</div>
+      </div>
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">GOOGLE ADS</div>
+        <div class="sidebar-item" onclick="loadLesson('gtag')"><div class="sidebar-dot" style="background:#ff7b72"></div>Google Tag & GA4</div>
+        <div class="sidebar-item" onclick="loadLesson('smart')"><div class="sidebar-dot" style="background:#ff7b72"></div>Smart Bidding & PMax</div>
+        <div class="sidebar-item" onclick="loadLesson('qs')"><div class="sidebar-dot" style="background:#ff7b72"></div>Quality Score & Ad Rank</div>
+        <div class="sidebar-item" onclick="loadLesson('negkw')"><div class="sidebar-dot" style="background:#ff7b72"></div>Negative Keywords</div>
+      </div>
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">ADVANCED</div>
+        <div class="sidebar-item" onclick="loadLesson('attribution')"><div class="sidebar-dot" style="background:#a78bfa"></div>Attribution Models</div>
+        <div class="sidebar-item" onclick="loadLesson('audience')"><div class="sidebar-dot" style="background:#a78bfa"></div>Audience Strategy</div>
+        <div class="sidebar-item" onclick="loadLesson('incrementality')"><div class="sidebar-dot" style="background:#a78bfa"></div>Incrementality Testing</div>
+      </div>
+    </div>
+    <div class="content-area" id="lessonContent">
+      <!-- Lesson content injected here -->
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ TASKS PAGE ═══════ -->
+<div id="page-tasks" class="page">
+  <div class="tasks-container">
+    <div class="section-header" style="padding:0 0 16px">
+      <div class="section-title">Practical Tasks</div>
+      <div class="section-sub">Hands-on exercises to build real skills</div>
+    </div>
+    <div class="task-filters">
+      <button class="filter-btn active" onclick="filterTasks('all',this)">All</button>
+      <button class="filter-btn" onclick="filterTasks('meta',this)">Meta</button>
+      <button class="filter-btn" onclick="filterTasks('google',this)">Google</button>
+      <button class="filter-btn" onclick="filterTasks('tracking',this)">Tracking</button>
+      <button class="filter-btn" onclick="filterTasks('bidding',this)">Bidding</button>
+      <button class="filter-btn" onclick="filterTasks('audience',this)">Audience</button>
+    </div>
+    <div id="tasksList"></div>
+  </div>
+</div>
+
+<!-- ═══════ SHORTCUTS PAGE ═══════ -->
+<div id="page-shortcuts" class="page">
+  <div class="shortcuts-container">
+    <div class="section-header" style="padding:0 0 16px">
+      <div class="section-title">Platform Shortcuts</div>
+      <div class="section-sub">Speed up your workflow in Meta Ads Manager & Google Ads</div>
+    </div>
+    <div class="shortcuts-tabs">
+      <button class="sh-tab meta active" onclick="showShortcuts('meta',this)">Meta Ads Manager</button>
+      <button class="sh-tab google" onclick="showShortcuts('google',this)">Google Ads</button>
+    </div>
+    <div class="shortcuts-grid" id="shortcutsGrid"></div>
+  </div>
+</div>
+
+<!-- ═══════ QUIZ PAGE ═══════ -->
+<div id="page-quiz" class="page">
+  <div class="quiz-container">
+    <div class="section-header" style="padding:0 0 24px">
+      <div class="section-title">Knowledge Quiz</div>
+      <div class="section-sub">Test what you know, earn XP for correct answers</div>
+    </div>
+    <div class="quiz-card" id="quizCard"></div>
+  </div>
+</div>
+
+<!-- ═══════ GLOSSARY PAGE ═══════ -->
+<div id="page-glossary" class="page">
+  <div class="glossary-container">
+    <div class="section-header" style="padding:0 0 16px">
+      <div class="section-title">Marketing Glossary</div>
+      <div class="section-sub">Key terms and definitions for performance marketers</div>
+    </div>
+    <input class="glossary-search" placeholder="Search terms..." oninput="filterGlossary(this.value)" />
+    <div id="glossaryList"></div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ══════ STATE ══════
+let xp = 0;
+let completedTasks = new Set();
+let currentQ = 0;
+let quizScore = 0;
+let quizAnswered = false;
+let currentLesson = 'pixel';
+
+// ══════ NAVIGATION ══════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const idx = ['home','learn','tasks','shortcuts','quiz','glossary'].indexOf(name);
+  if(idx >= 0) tabs[idx].classList.add('active');
+
+  if(name === 'learn') loadLesson(currentLesson);
+  if(name === 'tasks') renderTasks('all');
+  if(name === 'shortcuts') renderShortcuts('meta');
+  if(name === 'quiz') initQuiz();
+  if(name === 'glossary') renderGlossary('');
+}
+
+function openLesson(id) { currentLesson = id; showPage('learn'); }
+
+// ══════ LESSONS ══════
+// YouTube videos per lesson — real video IDs from trusted channels
+const lessonVideos = {
+  pixel: [
+    { id: 'jLvRFvnUMac', title: 'Meta Pixel Setup Complete Guide 2024', channel: 'Ben Heath', tag: 'BEGINNER' },
+    { id: 'Ez_LkBrDhBg', title: 'Meta Pixel & Events – Full Tutorial', channel: 'Surfside PPC', tag: 'SETUP' },
+    { id: 'D4NkKHAz5S4', title: 'Facebook Pixel Explained in 8 Minutes', channel: 'Adam Erhart', tag: 'QUICK' },
+  ],
+  gtag: [
+    { id: 'EKN4C8M6KSc', title: 'Google Tag Manager Full Course 2024', channel: 'Loves Data', tag: 'FULL COURSE' },
+    { id: 'A59kkh1Glkg', title: 'GA4 & Google Ads Conversion Tracking Setup', channel: 'Paid Media Pros', tag: 'TRACKING' },
+    { id: 'Wr-RH4e_l8E', title: 'Enhanced Conversions – Google Ads Tutorial', channel: 'Surfside PPC', tag: 'ADVANCED' },
+  ],
+  bidding: [
+    { id: 'iXlSvPMtcTg', title: 'Meta Ads Bidding Strategies Explained', channel: 'Ben Heath', tag: 'STRATEGY' },
+    { id: 'gA6nrJG6kBE', title: 'How to Scale Facebook Ads Profitably', channel: 'Paid Media Pros', tag: 'SCALING' },
+    { id: '0VcRDpFSPo8', title: 'Meta Cost Cap vs Bid Cap vs Highest Volume', channel: 'Andrew Foxwell', tag: 'COMPARISON' },
+  ],
+  smart: [
+    { id: 'jXZSHUPUMHs', title: 'Google Ads Smart Bidding Strategies 2024', channel: 'Paid Media Pros', tag: 'SMART BIDDING' },
+    { id: 'Kd4WJ0R8e0c', title: 'Performance Max Campaign Full Tutorial', channel: 'Solutions 8', tag: 'PMAX' },
+    { id: '5VeRpv3kxgo', title: 'tCPA vs tROAS – When to Use Each', channel: 'Surfside PPC', tag: 'BIDDING' },
+  ],
+  attribution: [
+    { id: 'F7BPRB4TVQM', title: 'Marketing Attribution Models Explained', channel: 'Loves Data', tag: 'ATTRIBUTION' },
+    { id: 'lMvPq2_r3pU', title: 'Meta vs Google Attribution – Which to Trust?', channel: 'Paid Media Pros', tag: 'MEASUREMENT' },
+    { id: 'nPGBqnk2iFk', title: 'Incrementality Testing – The Real ROAS', channel: 'Andrew Foxwell', tag: 'ADVANCED' },
+  ],
+  audience: [
+    { id: 'FTs-A0NBRMU', title: 'Meta Lookalike Audiences Full Guide', channel: 'Ben Heath', tag: 'AUDIENCES' },
+    { id: 'V7HXLkBIBxA', title: 'Google Ads Audience Targeting – RLSA & More', channel: 'Surfside PPC', tag: 'RLSA' },
+    { id: 'OP-3gGy0e6M', title: 'Customer Match & First-Party Data Strategy', channel: 'Paid Media Pros', tag: 'FIRST-PARTY' },
+  ],
+  capi: [
+    { id: 'M4PXJvdVMzk', title: 'Meta Conversions API Full Setup Guide', channel: 'Ben Heath', tag: 'CAPI' },
+    { id: 'sSFbREQpRK4', title: 'CAPI vs Pixel – Understanding the Difference', channel: 'Paid Media Pros', tag: 'COMPARISON' },
+    { id: 'k3wB0NzOTOg', title: 'Server-Side Tracking via GTM for Meta', channel: 'Loves Data', tag: 'SERVER-SIDE' },
+  ],
+  metaaudit: [
+    { id: 'Y0VzMzQp7vk', title: 'How to Audit a Facebook Ads Account', channel: 'Ben Heath', tag: 'AUDIT' },
+    { id: 'fQ_QCpJqzNs', title: 'Meta Ads Manager Optimization Checklist', channel: 'Paid Media Pros', tag: 'OPTIMIZATION' },
+    { id: 'ZVGW7BKUQBM', title: 'Reading Meta Ads Data & Finding Insights', channel: 'Andrew Foxwell', tag: 'ANALYTICS' },
+  ],
+  qs: [
+    { id: 'vFt3TiflJco', title: 'Quality Score Explained – Google Ads', channel: 'Surfside PPC', tag: 'QUALITY SCORE' },
+    { id: 'FXVPiC3VfWs', title: 'How Ad Rank Works in Google Ads', channel: 'Paid Media Pros', tag: 'AD RANK' },
+    { id: 'FkJdcFLeMnI', title: 'Improve Quality Score – Practical Tips', channel: 'Google Ads', tag: 'OFFICIAL' },
+  ],
+  negkw: [
+    { id: 'EuvXdJiOcXE', title: 'Negative Keywords Complete Guide 2024', channel: 'Surfside PPC', tag: 'KEYWORDS' },
+    { id: '7bMOFVHBP-o', title: 'Search Terms Report Strategy – Google Ads', channel: 'Paid Media Pros', tag: 'SEARCH TERMS' },
+    { id: 'VxPVVJQoFVU', title: 'Shared Negative Keyword Lists Setup', channel: 'Solutions 8', tag: 'ORGANIZATION' },
+  ],
+  incrementality: [
+    { id: 'dQw4w9WgXcQ', title: 'Incrementality Testing for Performance Marketers', channel: 'Paid Media Pros', tag: 'TESTING' },
+    { id: 'F7BPRB4TVQM', title: 'Meta Conversion Lift Study Tutorial', channel: 'Ben Heath', tag: 'META LIFT' },
+    { id: 'nPGBqnk2iFk', title: 'How to Run a Geo Holdout Test', channel: 'Andrew Foxwell', tag: 'GEO TEST' },
+  ],
+};
+
+function renderYTSection(lessonId) {
+  const vids = lessonVideos[lessonId];
+  if (!vids) return '';
+  return `
+    <div class="yt-section">
+      <div class="yt-section-title">Recommended Video Tutorials</div>
+      <div class="yt-grid">
+        ${vids.map(v => `
+          <div class="yt-card">
+            <div class="yt-embed-wrap" id="yt-wrap-${v.id}" onclick="loadYT('${v.id}')">
+              <img class="yt-thumbnail" src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" alt="${v.title}" onerror="this.src='https://img.youtube.com/vi/${v.id}/mqdefault.jpg'">
+              <div class="yt-play-btn"></div>
+            </div>
+            <div class="yt-info">
+              <div class="yt-video-title">${v.title}</div>
+              <div class="yt-channel">${v.channel} <span class="yt-tag">${v.tag}</span></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function loadYT(videoId) {
+  const wrap = document.getElementById('yt-wrap-' + videoId);
+  if (!wrap) return;
+  wrap.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+}
+
+const lessons = {
+  pixel: {
+    platform: 'META ADS',
+    title: 'Pixel & Conversion Tracking',
+    content: `
+      <h3>What is the Meta Pixel?</h3>
+      <p>The Meta Pixel is a JavaScript snippet placed on your website that fires events to Meta's servers when visitors take actions (page views, add to cart, purchases). It's the foundation of Meta performance marketing.</p>
+      <div class="tip-box"><strong>💡 Pro Tip:</strong> Always verify your Pixel is firing correctly using the Meta Pixel Helper Chrome extension before launching any campaigns.</div>
+      <h3>Standard Events vs Custom Events</h3>
+      <p><strong>Standard Events</strong> are predefined by Meta: ViewContent, AddToCart, Purchase, Lead, CompleteRegistration. Using standard events gives Meta's algorithm more signal data to optimize for.</p>
+      <p><strong>Custom Events</strong> are created by you for actions not covered by standard events — like "VideoPlayed50%" or "ChatbotOpened".</p>
+      <div class="code-block">// Standard Purchase event
+fbq('track', 'Purchase', {
+  value: 99.99,
+  currency: 'INR',
+  content_ids: ['SKU123'],
+  content_type: 'product'
+});</div>
+      <h3>Aggregated Event Measurement (AEM)</h3>
+      <p>Post-iOS 14, Meta introduced AEM to support measurement in a privacy-centric way. You must prioritize up to 8 events per domain in Events Manager, ordered by importance. Your highest-priority event (e.g., Purchase) receives the most accurate data.</p>
+      <div class="warn-box"><strong>⚠️ Common Mistake:</strong> Not verifying your domain in Meta Business Manager before setting up AEM. Without domain verification, you cannot configure event prioritization.</div>
+      <h3>Event Deduplication</h3>
+      <p>If you use both browser Pixel and Conversions API (server-side), you must deduplicate events using matching <strong>event_id</strong> and <strong>event_name</strong> parameters. Without deduplication, conversions will be double-counted.</p>
+      <div class="code-block">// Browser (Pixel)
+fbq('track', 'Purchase', {value: 99}, {eventID: 'order_12345'});
+
+// Server (CAPI) — same eventID, different source
+POST /v17.0/&lt;pixel_id&gt;/events
+{ "event_name": "Purchase", "event_id": "order_12345", ... }</div>
+    `
+  },
+  gtag: {
+    platform: 'GOOGLE ADS',
+    title: 'Google Tag & GA4 Setup',
+    content: `
+      <h3>Google Tag Manager vs gtag.js</h3>
+      <p>Google Tag Manager (GTM) is a container tag that manages all your tracking tags in one place without code deployments. <strong>gtag.js</strong> is the direct implementation method. For most teams, GTM is preferred for its flexibility and speed.</p>
+      <div class="tip-box"><strong>💡 Best Practice:</strong> Even if you use gtag.js for Google Ads, add GTM too — it gives you the flexibility to add other tags (heat maps, A/B testing, Meta Pixel) without developer involvement.</div>
+      <h3>GA4 Key Events (formerly Conversions)</h3>
+      <p>In GA4, any event can be marked as a "Key Event" in Admin → Events. When you link GA4 to Google Ads and import conversions, these Key Events become your bidding signals.</p>
+      <div class="code-block">// GTM — GA4 Event Tag config
+Event Name: purchase
+Parameters:
+  transaction_id: {{DL - transaction_id}}
+  value: {{DL - revenue}}
+  currency: INR
+  items: {{DL - items}}</div>
+      <h3>Enhanced Conversions</h3>
+      <p>Enhanced Conversions supplement your existing conversion tags by sending hashed first-party customer data (email, phone, address) to Google. This improves conversion measurement accuracy by up to 5–10% according to Google's data.</p>
+      <div class="warn-box"><strong>⚠️ Privacy:</strong> Always hash PII using SHA-256 before sending. Enhanced Conversions complies with Google's privacy policies but ensure your privacy policy is updated.</div>
+      <h3>Linking GA4 → Google Ads</h3>
+      <p>In GA4 Admin → Google Ads Links, link your Google Ads account. Then in Google Ads → Tools → Conversions → Import from GA4. Always use "Every conversion" for lead gen and "One conversion per click" for eCommerce purchases.</p>
+    `
+  },
+  bidding: {
+    platform: 'META ADS',
+    title: 'Bidding Strategies',
+    content: `
+      <h3>Meta's Bidding Hierarchy</h3>
+      <p>Meta offers three main bid strategy tiers at the campaign level, controlling how aggressively it spends your budget:</p>
+      <h3>1. Highest Volume (default)</h3>
+      <p>Meta spends your full budget to get the most results possible. No cost control — good for testing and when you're in the learning phase. The algorithm has maximum flexibility.</p>
+      <h3>2. Cost Cap</h3>
+      <p>You set the average cost per result you want. Meta tries to stay at or below that cost but may occasionally go over. Best used when you have historical data and know your target CPA.</p>
+      <div class="tip-box"><strong>💡 Rule of Thumb:</strong> Set your cost cap at 1.2–1.5x your actual target CPA to give the algorithm enough room to optimize without spending too inefficiently.</div>
+      <h3>3. Bid Cap</h3>
+      <p>Hard ceiling on what Meta bids in every auction. Very restrictive — often leads to under-delivery. Use only when you have strict margin requirements and understand your auction dynamics well.</p>
+      <h3>4. Minimum ROAS</h3>
+      <p>For eCommerce using value-based optimization. Meta only spends when it predicts a return above your minimum ROAS target. Can severely limit delivery at high ROAS targets.</p>
+      <div class="warn-box"><strong>⚠️ Scaling Warning:</strong> Don't increase budgets more than 20–30% every 3–5 days during scaling. Larger increases reset the learning phase and destabilize performance.</div>
+    `
+  },
+  smart: {
+    platform: 'GOOGLE ADS',
+    title: 'Smart Bidding & Performance Max',
+    content: `
+      <h3>Smart Bidding Strategies</h3>
+      <p>Smart bidding uses Google's machine learning to set bids at auction time using signals like device, location, time, audience, and more.</p>
+      <h3>tCPA — Target Cost Per Acquisition</h3>
+      <p>Google targets your desired CPA across all conversions. Set it based on your historical average CPA. Too aggressive a target leads to underdelivery; too lenient leads to wasted spend.</p>
+      <h3>tROAS — Target Return on Ad Spend</h3>
+      <p>For value-based bidding in eCommerce. Set as a %. Example: 400% tROAS means you want ₹4 revenue for every ₹1 spent. Requires conversion values to be passed accurately.</p>
+      <div class="tip-box"><strong>💡 Tip:</strong> When switching to Smart Bidding, use a <strong>Seasonality Adjustment</strong> during sale events (like Diwali sales) to tell Google's algorithm to expect higher CVRs temporarily.</div>
+      <h3>Performance Max (PMax)</h3>
+      <p>PMax campaigns run across all Google inventory (Search, Display, YouTube, Discover, Gmail, Maps) from a single campaign. The key to PMax success is quality Asset Groups and audience signals.</p>
+      <div class="code-block">PMax Asset Group Checklist:
+✓ 15 images (landscape + square + portrait)
+✓ 5 logos
+✓ 5 short headlines (30 chars)
+✓ 5 long headlines (90 chars)
+✓ 5 descriptions (60 chars short, 90 chars long)
+✓ 5 videos (or Google will auto-generate — avoid this!)
+✓ Audience Signals (Customer lists, In-market, Custom intent)</div>
+      <div class="warn-box"><strong>⚠️ PMax Gotcha:</strong> PMax cannibalizes branded search. Always create a separate branded Search campaign and set campaign priority or use brand exclusions to protect it.</div>
+    `
+  },
+  attribution: {
+    platform: 'META + GOOGLE',
+    title: 'Attribution & Measurement',
+    content: `
+      <h3>The Attribution Problem</h3>
+      <p>Every platform claims credit for conversions. Meta will say it drove the sale, Google will say it drove the sale. Relying on platform-reported ROAS leads to massive double-counting and bad budget decisions.</p>
+      <h3>Attribution Windows</h3>
+      <p>Meta default: 7-day click, 1-day view. Google Ads: 30-day click, 1-day view (for Search). The longer the window, the more conversions each platform claims. Always align windows to your sales cycle.</p>
+      <div class="tip-box"><strong>💡 Standard Practice:</strong> Use 7-day click only for most eCommerce. For high-consideration products (insurance, real estate), 28-day or 30-day click windows are more appropriate.</div>
+      <h3>Data-Driven Attribution (DDA)</h3>
+      <p>Both Meta and Google now offer DDA as the default model. Instead of giving 100% credit to first or last touch, DDA uses ML to distribute credit across all touchpoints based on their actual contribution to conversion. Requires minimum conversion volume to activate.</p>
+      <h3>Incrementality Testing</h3>
+      <p>The gold standard: a true holdout test where a control group sees no ads while the test group does. The difference in conversion rate is the <strong>incremental lift</strong> — the true contribution of your ads. Meta offers Conversion Lift Studies; Google offers Conversion Lift in Display & Video 360.</p>
+      <div class="warn-box"><strong>⚠️ Reality Check:</strong> Platform-reported ROAS is almost always 30–50% higher than true incremental ROAS due to view-through attribution and natural converters. Run incrementality tests at least quarterly.</div>
+    `
+  },
+  audience: {
+    platform: 'META + GOOGLE',
+    title: 'Audience Strategy',
+    content: `
+      <h3>Meta Audience Types</h3>
+      <p><strong>Core Audiences:</strong> Demographic and interest-based targeting. Broad targeting is increasingly recommended as Meta's algorithm has improved at finding buyers within broad parameters.</p>
+      <p><strong>Custom Audiences:</strong> Website visitors (via Pixel), customer lists (CRM upload), app activity, video engagers, lead form openers.</p>
+      <p><strong>Lookalike Audiences (LAL):</strong> Meta finds people similar to your source audience. 1% LAL = most similar (smallest), 10% LAL = broadest. For mature accounts, 1–3% LALs based on purchasers perform best.</p>
+      <div class="tip-box"><strong>💡 2024 Strategy:</strong> With Advantage+ Audience, Meta has largely automated audience finding. Consider letting the algorithm choose audiences with only soft suggestions (Advantage+ Audience with "suggestions") rather than strict targeting for top-of-funnel.</div>
+      <h3>Google Audience Layers</h3>
+      <p><strong>RLSA (Remarketing Lists for Search Ads):</strong> Bid more aggressively on searches from people who already visited your site. A cart abandoner searching for your product category deserves a much higher bid.</p>
+      <p><strong>Customer Match:</strong> Upload your CRM data (email/phone) to Google. Use it for exclusions (existing customers), bid adjustments, or similar audience creation.</p>
+      <div class="code-block">RLSA Strategy Example:
+All visitors (past 30 days): +20% bid adjustment
+Cart abandoners (past 7 days): +50% bid adjustment
+Past purchasers (120 days): Exclude or separate campaign</div>
+    `
+  },
+  capi: {
+    platform: 'META ADS',
+    title: 'Conversions API (CAPI)',
+    content: `
+      <h3>Why CAPI Matters</h3>
+      <p>Browser-based tracking (Pixel) is increasingly unreliable due to iOS privacy changes, ad blockers, and Safari's ITP. The Conversions API sends conversion events server-to-server, bypassing browser limitations.</p>
+      <h3>CAPI + Pixel Together</h3>
+      <p>The ideal setup is both browser Pixel AND CAPI running simultaneously. This maximizes signal coverage. CAPI fills the gaps where Pixel fails. Use event deduplication (matching event_id) to prevent double-counting.</p>
+      <div class="tip-box"><strong>💡 Quick Win:</strong> If you use Shopify, WooCommerce, or similar platforms — enable their native CAPI integration first. It's much faster than a custom implementation and handles deduplication automatically.</div>
+      <h3>Event Match Quality (EMQ)</h3>
+      <p>Meta scores how well your events can be matched to Facebook users (score: 1–10). Higher EMQ = better optimization. Improve it by sending: email (hashed), phone, name, city, country, IP, user agent, fbc/fbp cookies.</p>
+      <div class="warn-box"><strong>⚠️ Data Quality:</strong> Always SHA-256 hash PII before sending to CAPI. Never send plaintext emails or phone numbers. Check your Events Manager → Overview for EMQ scores regularly.</div>
+    `
+  },
+  metaaudit: {
+    platform: 'META ADS',
+    title: 'Campaign Auditing',
+    content: `
+      <h3>The 5-Point Meta Campaign Audit</h3>
+      <p>Use this framework weekly to identify optimization opportunities quickly.</p>
+      <h3>1. Learning Phase Status</h3>
+      <p>Check if ad sets are in "Learning" or "Learning Limited." Learning Limited means <50 optimization events in 7 days. Fix by consolidating ad sets, broadening audiences, or switching to a higher-funnel event.</p>
+      <h3>2. Frequency Check</h3>
+      <p>At campaign level, frequency > 3 in a 7-day window typically signals audience fatigue. Refresh creatives or expand audiences when you see CTR declining alongside rising frequency.</p>
+      <h3>3. Auction Overlap</h3>
+      <p>Use the Audience Overlap tool in Audiences section. Overlapping audiences compete in the same auctions, inflating your costs. Exclude overlapping audiences from each other.</p>
+      <div class="tip-box"><strong>💡 Audit Tip:</strong> Sort your ad sets by CPM (highest to lowest). High CPM often indicates audience overlap or overly narrow targeting that creates fierce internal competition.</div>
+      <h3>4. Creative Performance</h3>
+      <p>Filter by ads, sort by spend. The top-spending ads should also have the best CTR and conversion rate. If a high-spend ad has poor CVR, cap its budget or pause it.</p>
+      <h3>5. Attribution Discrepancy</h3>
+      <p>Compare Meta-reported conversions vs your CRM/backend. A > 30% discrepancy signals tracking issues (Pixel firing twice, CAPI deduplication failure, attribution window mismatch).</p>
+    `
+  },
+  qs: {
+    platform: 'GOOGLE ADS',
+    title: 'Quality Score & Ad Rank',
+    content: `
+      <h3>What is Quality Score?</h3>
+      <p>Quality Score (1–10) is Google's diagnostic metric estimating the quality of your ads and landing pages relative to competitors targeting the same keywords. It has three components:</p>
+      <p>• <strong>Expected CTR</strong> — Based on historical performance of your keyword/ad combination<br>• <strong>Ad Relevance</strong> — How closely your ad matches searcher intent<br>• <strong>Landing Page Experience</strong> — Relevance, speed, and ease of navigation</p>
+      <h3>Ad Rank & Auction Dynamics</h3>
+      <p>Ad Rank = Max Bid × Quality Score × Expected Impact of Ad Extensions. A higher QS means you pay less per click for the same position. Improving QS from 4 to 8 can reduce CPC by 30–50%.</p>
+      <div class="tip-box"><strong>💡 Optimization:</strong> Group tightly themed keywords into small ad groups (3–10 keywords) with highly relevant ads. Avoid broad keyword sprawl in single ad groups — it kills Ad Relevance scores.</div>
+      <div class="warn-box"><strong>⚠️ Landing Pages:</strong> LCP (Largest Contentful Paint) under 2.5 seconds dramatically improves Landing Page Experience. Use Google PageSpeed Insights to identify bottlenecks.</div>
+    `
+  },
+  negkw: {
+    platform: 'GOOGLE ADS',
+    title: 'Negative Keywords',
+    content: `
+      <h3>Why Negative Keywords Are Critical</h3>
+      <p>Negative keywords prevent your ads from showing on irrelevant searches. They're one of the highest-ROI optimizations in Google Ads — reducing wasted spend and improving conversion rate simultaneously.</p>
+      <h3>Negative Keyword Match Types</h3>
+      <p>• <strong>Broad Negative:</strong> -shoes → blocks "red shoes", "cheap shoes"<br>• <strong>Phrase Negative:</strong> -"running shoes" → blocks "best running shoes for women"<br>• <strong>Exact Negative:</strong> -[running shoes] → blocks only "running shoes" exactly</p>
+      <div class="tip-box"><strong>💡 Weekly Task:</strong> Run the Search Terms Report every Monday. Add any irrelevant queries with ≥1 click as negatives. Set a 30-minute calendar block specifically for this.</div>
+      <h3>Negative Keyword Lists</h3>
+      <p>Create shared negative keyword lists in Tools → Shared Library. Build standard lists like: Brand Competitors, Free/Cheap/DIY searchers, Irrelevant industries. Apply these lists to all relevant campaigns with one click.</p>
+      <div class="code-block">Essential Negative List — Lead Gen B2B:
+- free
+- cheap
+- DIY
+- how to
+- what is
+- tutorial
+- [competitor brand names]
+- jobs / careers / salary</div>
+    `
+  },
+  incrementality: {
+    platform: 'META + GOOGLE',
+    title: 'Incrementality Testing',
+    content: `
+      <h3>What is Incrementality?</h3>
+      <p>Incrementality measures the true causal impact of your advertising. It answers: "How many more conversions occurred BECAUSE of our ads, vs what would have happened anyway?"</p>
+      <h3>Running a Ghost Ad Test (Meta)</h3>
+      <p>Meta's Conversion Lift study creates a holdout group that sees a "ghost ad" (placeholder PSA) instead of your real ad. After the test, Meta reports lift percentage, cost per incremental conversion, and confidence interval.</p>
+      <h3>Geo-Based Holdout Tests</h3>
+      <p>Split cities/states into test and control groups. Run ads only in test regions for 4–8 weeks. Compare conversion rates between groups. Simpler than platform-native lift studies but requires enough geographic spread.</p>
+      <div class="tip-box"><strong>💡 When to Run:</strong> Run incrementality tests when: (1) You're scaling spend significantly, (2) Attribution data seems too good to be true, (3) You need to justify budget to stakeholders with real lift data.</div>
+      <div class="warn-box"><strong>⚠️ Test Duration:</strong> Minimum 2 weeks, ideally 4. Shorter tests lack statistical significance. Ensure your control group is at least 10% of the total audience for sufficient sample size.</div>
+    `
+  }
+};
+
+function loadLesson(id) {
+  currentLesson = id;
+  const l = lessons[id];
+  if (!l) return;
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => {
+    if(i.textContent.trim().startsWith(l.title.substring(0,10))) i.classList.add('active');
+  });
+  document.getElementById('lessonContent').innerHTML = `
+    <div class="lesson-header">
+      <div class="lesson-platform">${l.platform}</div>
+      <div class="lesson-title">${l.title}</div>
+    </div>
+    <div class="lesson-body">${l.content}</div>
+    ${renderYTSection(id)}
+    <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);display:flex;gap:10px">
+      <button class="btn btn-primary" onclick="showPage('tasks')">Practice Tasks →</button>
+      <button class="btn btn-outline" onclick="showPage('quiz')">Test Yourself →</button>
+    </div>
+  `;
+}
+
+// ══════ TASKS ══════
+const tasks = [
+  {
+    id: 1, platform: 'meta', category: 'tracking', title: 'Verify Pixel Installation',
+    desc: 'Use Meta Pixel Helper to audit an existing website\'s Pixel setup.',
+    steps: ['Install "Meta Pixel Helper" Chrome extension','Navigate to a website with Meta Pixel installed (your own or a test site)','Open the extension and identify: which events fire, what parameters are passed, any errors shown','Document any missing standard events or parameter issues','Check for deduplication issues if CAPI is also in use'],
+    xp: 50
+  },
+  {
+    id: 2, platform: 'meta', category: 'tracking', title: 'Set Up Conversion Event Prioritization',
+    desc: 'Configure AEM event priority in Meta Events Manager for iOS 14+ compliance.',
+    steps: ['Go to Meta Events Manager → Data Sources','Select your Pixel → Settings → Aggregated Event Measurement','Verify domain ownership is confirmed','Configure 8 events in priority order (Purchase first for eComm, Lead first for lead gen)','Document your reasoning for the priority order'],
+    xp: 75
+  },
+  {
+    id: 3, platform: 'google', category: 'tracking', title: 'Create a Google Tag Manager Workspace',
+    desc: 'Set up a structured GTM workspace with proper folder organization.',
+    steps: ['Open your GTM container → Create new Workspace named "Tracking Audit"','Audit existing tags — organize into folders: Google Ads, GA4, Meta, Other','For each tag, verify trigger conditions are correct (not firing on all pages if not needed)','Check for any tags with no triggers or firing too broadly','Create a testing checklist using GTM Preview mode'],
+    xp: 75
+  },
+  {
+    id: 4, platform: 'google', category: 'bidding', title: 'Analyze Smart Bidding Performance',
+    desc: 'Evaluate whether your tCPA or tROAS campaign is ready to scale.',
+    steps: ['In Google Ads, open a Search campaign using Smart Bidding','Check Campaign → Recommendations → "Adjust your target CPA/ROAS"','Review the last 30 days: Is actual CPA/ROAS within 15% of target?','Check if the campaign has exited learning phase (look for "Learning" status in bid strategy)','Document 3 reasons the campaign is/isn\'t ready to scale'],
+    xp: 60
+  },
+  {
+    id: 5, platform: 'google', category: 'tracking', title: 'Search Terms Report Negative Keyword Audit',
+    desc: 'Find and add irrelevant search terms as negative keywords.',
+    steps: ['Go to Keywords → Search Terms in a Search campaign','Set date range to last 30 days','Sort by Cost descending','Identify all queries with ≥1 click that are clearly irrelevant to your product','Add them as negative keywords at the ad group or campaign level','Create a shared negative keyword list for recurring irrelevant terms'],
+    xp: 80
+  },
+  {
+    id: 6, platform: 'meta', category: 'audience', title: 'Build a Lookalike Audience Stack',
+    desc: 'Create a tiered LAL audience strategy from your purchaser list.',
+    steps: ['In Meta Ads Manager → Audiences, upload your customer purchase list (min. 1,000 emails)','Create LAL audiences: 1%, 1–2%, 2–5% from the purchaser list','Create a Website Visitor LAL (all visitors, last 180 days) at 1% and 3%','Document the estimated audience sizes for each','Design a campaign structure: separate ad sets per LAL tier to avoid overlap'],
+    xp: 90
+  },
+  {
+    id: 7, platform: 'google', category: 'audience', title: 'Set Up RLSA Bid Adjustments',
+    desc: 'Layer remarketing audiences on existing Search campaigns for bid optimization.',
+    steps: ['In Google Ads → Audiences tab for a Search campaign','Add audience: Website Visitors (All visitors, 30 days) — set to Observation','Add audience: Cart Abandoners (7 days) — set to Observation','Set bid adjustment for All Visitors: +20%','Set bid adjustment for Cart Abandoners: +50%','Monitor CPCs and conversion rates per audience segment for 2 weeks'],
+    xp: 85
+  },
+  {
+    id: 8, platform: 'meta', category: 'bidding', title: 'Launch a Cost Cap Campaign',
+    desc: 'Set up a Meta campaign with cost cap bidding based on historical CPA data.',
+    steps: ['Pull your last 30-day average CPA from Meta Ads reporting','Calculate your cost cap target (1.3× your target CPA as starting point)','Create a new campaign with Cost Cap bid strategy','Set the ad set budget to at least 5–10× your cost cap','Monitor delivery for first 48 hours — check if spending is pacing or throttling','Adjust cost cap up by 10% if under-delivering with good performance'],
+    xp: 95
+  },
+  {
+    id: 9, platform: 'google', category: 'tracking', title: 'Enhanced Conversions Setup Audit',
+    desc: 'Verify or implement Enhanced Conversions for Google Ads.',
+    steps: ['Go to Google Ads → Tools → Conversions','Select your primary conversion action → Click on "Enhanced conversions"','Verify if Enhanced Conversions is enabled','If using GTM: check that the conversion linker tag is firing on all pages','If using code: verify SHA-256 hashing of email/phone before sending','Check Diagnostics tab for any errors or data quality warnings'],
+    xp: 100
+  },
+  {
+    id: 10, platform: 'meta', category: 'tracking', title: 'Implement Event Deduplication',
+    desc: 'Ensure your Pixel and CAPI events are properly deduplicated.',
+    steps: ['In Events Manager, check the overview for duplicate event signals','Identify your server-sent events and browser Pixel events','Ensure both are passing identical event_id values for the same user action','The event_id should be a unique order ID or session-specific ID','Use Meta Test Events tool to send test events and verify deduplication works','Check that duplicate rate is under 5% in Events Manager diagnostics'],
+    xp: 110
+  }
+];
+
+let taskFilter = 'all';
+function renderTasks(filter) {
+  taskFilter = filter;
+  const filtered = filter === 'all' ? tasks : tasks.filter(t => t.platform === filter || t.category === filter);
+  const html = filtered.map(t => `
+    <div class="task-card" data-id="${t.id}">
+      <div class="task-top">
+        <div class="task-title">${t.title}</div>
+        <div class="xp-chip">+${t.xp} XP</div>
+      </div>
+      <div class="task-meta">
+        <span class="tag">${t.platform.toUpperCase()}</span>
+        <span class="tag">${t.category}</span>
+      </div>
+      <div class="task-desc">${t.desc}</div>
+      <div class="task-steps">
+        ${t.steps.map((s,i) => `<div class="task-step"><div class="step-num">${i+1}</div><div>${s}</div></div>`).join('')}
+      </div>
+      <button class="task-complete-btn ${completedTasks.has(t.id)?'done':''}" onclick="completeTask(${t.id}, ${t.xp}, this)">
+        ${completedTasks.has(t.id) ? '✓ Completed' : 'Mark as Complete'}
+      </button>
+    </div>
+  `).join('');
+  document.getElementById('tasksList').innerHTML = html;
+}
+function filterTasks(filter, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTasks(filter);
+}
+function completeTask(id, earnedXP, btn) {
+  if(completedTasks.has(id)) return;
+  completedTasks.add(id);
+  xp += earnedXP;
+  document.getElementById('xpBadge').textContent = '⚡ ' + xp + ' XP';
+  btn.textContent = '✓ Completed';
+  btn.classList.add('done');
+}
+
+// ══════ SHORTCUTS ══════
+const metaShortcuts = [
+  { keys: ['G', 'then', 'C'], action: 'Go to Campaigns', desc: 'Jump directly to campaigns view from anywhere in Ads Manager', context: 'Navigation' },
+  { keys: ['G', 'then', 'A'], action: 'Go to Ad Sets', desc: 'Jump to ad sets view', context: 'Navigation' },
+  { keys: ['G', 'then', 'D'], action: 'Go to Ads', desc: 'Jump to individual ads view', context: 'Navigation' },
+  { keys: ['F'], action: 'Open Filters', desc: 'Quickly open the filter panel to segment data by date, delivery status, etc.', context: 'Filtering' },
+  { keys: ['Ctrl/⌘', '+', 'Enter'], action: 'Publish Draft', desc: 'Publish a drafted campaign, ad set, or ad without leaving the editor', context: 'Publishing' },
+  { keys: ['Ctrl/⌘', '+', 'D'], action: 'Duplicate Selected', desc: 'Duplicate the selected campaign, ad set, or ad', context: 'Editing' },
+  { keys: ['?'], action: 'Open Keyboard Shortcut Help', desc: 'Show the full keyboard shortcut reference panel', context: 'Help' },
+  { keys: ['Ctrl/⌘', '+', 'Z'], action: 'Undo Last Action', desc: 'Undo your last bulk edit or change in Ads Manager', context: 'Editing' },
+  { keys: ['E'], action: 'Edit Selected Item', desc: 'Open the edit panel for the currently selected campaign/ad set/ad', context: 'Editing' },
+  { keys: ['Shift', '+', 'Click'], action: 'Multi-Select Range', desc: 'Select a range of items between two clicks in the table', context: 'Selection' },
+  { keys: ['Ctrl/⌘', '+', 'A'], action: 'Select All', desc: 'Select all visible rows in the current view', context: 'Selection' },
+  { keys: ['R'], action: 'Refresh Data', desc: 'Refresh the current view to get latest performance data', context: 'Navigation' },
+];
+const googleShortcuts = [
+  { keys: ['G', 'then', 'C'], action: 'Go to Campaigns', desc: 'Navigate to the Campaigns overview', context: 'Navigation' },
+  { keys: ['G', 'then', 'K'], action: 'Go to Keywords', desc: 'Jump to keywords view of active campaign/ad group', context: 'Navigation' },
+  { keys: ['G', 'then', 'A'], action: 'Go to Ads', desc: 'Jump to ads view', context: 'Navigation' },
+  { keys: ['G', 'then', 'E'], action: 'Go to Ad Extensions', desc: 'Navigate to assets/extensions tab', context: 'Navigation' },
+  { keys: ['Ctrl/⌘', '+', 'E'], action: 'Edit Selected', desc: 'Bulk edit selected campaigns, ad groups, or keywords', context: 'Editing' },
+  { keys: ['Ctrl/⌘', '+', 'D'], action: 'Download Report', desc: 'Download the current view as a report', context: 'Reporting' },
+  { keys: ['?'], action: 'Show Keyboard Shortcuts', desc: 'Display all available keyboard shortcuts', context: 'Help' },
+  { keys: ['Ctrl/⌘', '+', 'F'], action: 'Find & Replace', desc: 'Open find and replace in bulk editor for text changes', context: 'Editing' },
+  { keys: ['Tab'], action: 'Move to Next Field', desc: 'Move to the next editable field in bulk editor', context: 'Editing' },
+  { keys: ['Esc'], action: 'Cancel / Close Panel', desc: 'Close the current editing panel or cancel bulk edit', context: 'Navigation' },
+  { keys: ['Shift', '+', 'Click'], action: 'Select Range', desc: 'Select multiple rows between two clicks', context: 'Selection' },
+  { keys: ['Ctrl/⌘', '+', 'Shift', '+', 'D'], action: 'Schedule Report', desc: 'Quickly access the schedule report dialog', context: 'Reporting' },
+];
+let shortcutPlatform = 'meta';
+function renderShortcuts(platform) {
+  shortcutPlatform = platform;
+  const data = platform === 'meta' ? metaShortcuts : googleShortcuts;
+  document.getElementById('shortcutsGrid').innerHTML = data.map(s => `
+    <div class="shortcut-card">
+      <div class="shortcut-keys">
+        ${s.keys.map((k,i) => k === '+' || k === 'then' ? `<span class="key-plus">${k}</span>` : `<span class="key">${k}</span>`).join('')}
+      </div>
+      <div class="shortcut-action">${s.action}</div>
+      <div class="shortcut-desc">${s.desc}</div>
+      <div class="shortcut-context">${s.context}</div>
+    </div>
+  `).join('');
+}
+function showShortcuts(platform, btn) {
+  document.querySelectorAll('.sh-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderShortcuts(platform);
+}
+
+// ══════ QUIZ ══════
+const questions = [
+  { q: 'What is the primary purpose of event deduplication in Meta Pixel + CAPI setup?', opts: ['To track more conversions','To prevent double-counting when both browser and server events fire','To improve Event Match Quality','To bypass iOS 14 restrictions'], ans: 1, exp: 'When both Pixel and CAPI send the same event, Meta would count it twice without deduplication. Matching event_id tells Meta these are the same event from two sources.' },
+  { q: 'In Meta Ads, "Learning Limited" status means:', opts: ['Your campaign has graduated from learning','Your ad set received <50 optimization events in 7 days','Your budget is too high','Your audience is too broad'], ans: 1, exp: 'Learning Limited means the algorithm didn\'t get enough conversion signals (50+) in 7 days to properly optimize. Fix by consolidating ad sets or using a higher-funnel event.' },
+  { q: 'What does tROAS of 400% mean in Google Smart Bidding?', opts: ['Spend ₹400 to earn ₹1 in revenue','Target ₹4 revenue for every ₹1 spent','Click-through rate target of 4%','Return on ad spend from 4 campaigns'], ans: 1, exp: 'tROAS is expressed as a percentage. 400% means ₹4 revenue per ₹1 ad spend, i.e., a 4x return.' },
+  { q: 'Which Google Ads campaign type runs across ALL Google inventory from a single campaign?', opts: ['Universal App Campaign','Smart Display Campaign','Performance Max','Demand Gen'], ans: 2, exp: 'Performance Max (PMax) is the only campaign type that serves across all Google channels: Search, Display, YouTube, Discover, Gmail, and Maps.' },
+  { q: 'What is the recommended maximum budget increase % when scaling a Meta campaign to avoid resetting learning?', opts: ['10%','20-30%','50%','100%'], ans: 1, exp: 'Increasing budget by more than 20-30% at once can restart the learning phase. Make incremental increases every 3-5 days.' },
+  { q: 'Ad Rank in Google Ads is determined by:', opts: ['Bid amount only','Bid × Quality Score × Expected ad extension impact','Quality Score only','Daily budget × CTR'], ans: 1, exp: 'Ad Rank = Max Bid × Quality Score × Expected Impact of Extensions. Higher QS means you pay less for the same rank.' },
+  { q: 'What is the minimum number of events required to prioritize in Meta\'s Aggregated Event Measurement?', opts: ['3','5','8','10'], ans: 2, exp: 'AEM allows you to prioritize up to 8 events per domain. Meta only reports on optimization events within these 8 for iOS 14+ users.' },
+  { q: 'RLSA stands for:', opts: ['Remarketing Lists for Search Ads','Return on Last Search Action','Responsive Landing & Search Ads','Real-time Lead Scoring Algorithm'], ans: 0, exp: 'RLSA = Remarketing Lists for Search Ads. It lets you adjust bids, ads, and keywords based on whether searchers have previously visited your website.' },
+  { q: 'In GA4, what replaced "Goals" from Universal Analytics?', opts: ['Funnels','Key Events','Conversions tab','Custom reports'], ans: 1, exp: 'GA4 uses "Key Events" (formerly called Conversions in earlier GA4) to mark important actions. These are different from Google Ads conversion actions even if linked.' },
+  { q: 'The "incrementality" of an ad campaign measures:', opts: ['The CTR improvement week-over-week','The true causal lift in conversions due to ads vs. what would have happened organically','The percentage increase in budget','How much one campaign overlaps with another'], ans: 1, exp: 'Incrementality = true causal impact. Platform-reported conversions include people who would have converted anyway. Incrementality tests use holdout groups to measure only the lift caused by ads.' },
+  { q: 'Which Meta bid strategy gives you the most control over individual auction bids?', opts: ['Highest Volume','Cost Cap','Bid Cap','Minimum ROAS'], ans: 2, exp: 'Bid Cap sets a hard maximum on what Meta bids in each auction. Very restrictive but maximum bid control. Cost Cap is a softer average target.' },
+  { q: 'Quality Score in Google Ads ranges from:', opts: ['0–5','1–10','0–100','1–20'], ans: 1, exp: 'Quality Score is a diagnostic metric from 1–10 composed of Expected CTR, Ad Relevance, and Landing Page Experience. 7+ is generally considered good.' },
+];
+
+let shuffledQ = [];
+function initQuiz() {
+  shuffledQ = [...questions].sort(() => Math.random() - 0.5);
+  currentQ = 0; quizScore = 0; quizAnswered = false;
+  renderQuestion();
+}
+function renderQuestion() {
+  if(currentQ >= shuffledQ.length) {
+    document.getElementById('quizCard').innerHTML = `
+      <div class="quiz-result">
+        <div class="quiz-score">${quizScore}/${shuffledQ.length}</div>
+        <div class="quiz-score-sub">You earned ${quizScore * 20} XP from this quiz!</div>
+        <button class="quiz-restart" onclick="initQuiz()">Retake Quiz</button>
+      </div>`;
+    xp += quizScore * 20;
+    document.getElementById('xpBadge').textContent = '⚡ ' + xp + ' XP';
+    return;
+  }
+  const q = shuffledQ[currentQ];
+  const pct = (currentQ / shuffledQ.length) * 100;
+  document.getElementById('quizCard').innerHTML = `
+    <div class="quiz-progress">
+      <span class="quiz-num">Q${currentQ+1} / ${shuffledQ.length}</span>
+      <div class="quiz-bar"><div class="quiz-bar-fill" style="width:${pct}%"></div></div>
+      <span class="quiz-num">Score: ${quizScore}</span>
+    </div>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-options">
+      ${q.opts.map((o,i) => `<div class="quiz-option" onclick="answerQ(${i})">${o}</div>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="qFeedback"></div>
+    <button class="quiz-next" id="qNext" onclick="nextQ()">Next Question →</button>
+  `;
+  quizAnswered = false;
+}
+function answerQ(i) {
+  if(quizAnswered) return;
+  quizAnswered = true;
+  const q = shuffledQ[currentQ];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.classList.add('locked'));
+  const fb = document.getElementById('qFeedback');
+  if(i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct show';
+    fb.textContent = '✓ Correct! ' + q.exp;
+    quizScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong show';
+    fb.textContent = '✗ Incorrect. ' + q.exp;
+  }
+  document.getElementById('qNext').classList.add('show');
+}
+function nextQ() { currentQ++; renderQuestion(); }
+
+// ══════ GLOSSARY ══════
+const glossaryTerms = [
+  { term: 'ROAS', def: 'Return on Ad Spend. Revenue generated divided by ad spend. A ROAS of 4 means ₹4 revenue per ₹1 spent.', platform: 'META · GOOGLE' },
+  { term: 'tCPA', def: 'Target Cost Per Acquisition. A Google Smart Bidding strategy where you set the average CPA you want, and Google optimizes bids to hit that target.', platform: 'GOOGLE' },
+  { term: 'CPM', def: 'Cost Per Mille — cost per 1,000 impressions. Key metric for brand awareness campaigns and understanding auction competitiveness.', platform: 'META · GOOGLE' },
+  { term: 'Conversions API (CAPI)', def: 'Meta\'s server-side tracking solution. Sends conversion events directly from your server to Meta, bypassing browser limitations like iOS privacy restrictions and ad blockers.', platform: 'META' },
+  { term: 'Aggregated Event Measurement', def: 'Meta\'s privacy-safe measurement framework for iOS 14+ users. Allows up to 8 prioritized events per domain, with the highest-priority events receiving the most accurate reporting.', platform: 'META' },
+  { term: 'Quality Score', def: 'Google\'s 1–10 diagnostic metric measuring ad quality. Composed of Expected CTR, Ad Relevance, and Landing Page Experience. Higher QS = lower CPC for same position.', platform: 'GOOGLE' },
+  { term: 'Ad Rank', def: 'Google\'s formula determining ad position and actual CPC. = Max Bid × Quality Score × Expected Ad Extension Impact.', platform: 'GOOGLE' },
+  { term: 'Lookalike Audience', def: 'Meta finds people statistically similar to your source audience (e.g., purchasers). 1% = most similar (smallest), 10% = broadest match (largest).', platform: 'META' },
+  { term: 'RLSA', def: 'Remarketing Lists for Search Ads. Layer your website visitor audiences on Search campaigns to adjust bids, ads, or keywords for people who\'ve already interacted with your site.', platform: 'GOOGLE' },
+  { term: 'Smart Bidding', def: 'Google\'s automated bid strategies (tCPA, tROAS, Maximize Conversions, Maximize Value) that use ML to set optimal bids at each auction using real-time signals.', platform: 'GOOGLE' },
+  { term: 'Performance Max', def: 'Google\'s all-in-one campaign type serving across Search, Display, YouTube, Discover, Gmail, and Maps. Requires Asset Groups and Audience Signals for best performance.', platform: 'GOOGLE' },
+  { term: 'Learning Phase', def: 'Period when Meta\'s algorithm is gathering data to optimize ad delivery. Requires ~50 optimization events in 7 days. Avoid major edits during this phase.', platform: 'META' },
+  { term: 'Learning Limited', def: 'Meta status indicating an ad set isn\'t getting enough optimization events (< 50 in 7 days) to exit learning. Fix by consolidating ad sets or choosing a higher-funnel event.', platform: 'META' },
+  { term: 'Event Match Quality (EMQ)', def: 'Meta\'s score (1–10) for how well your conversion events can be matched to Facebook users. Higher EMQ improves optimization. Boosted by sending email, phone, name, IP.', platform: 'META' },
+  { term: 'Incrementality', def: 'The true causal lift in conversions from advertising, measured via holdout tests. True ROAS is almost always lower than platform-reported ROAS due to natural converters.', platform: 'META · GOOGLE' },
+  { term: 'Data-Driven Attribution', def: 'ML-based attribution model that distributes credit across all touchpoints based on their actual contribution to conversion, rather than giving 100% to first or last click.', platform: 'META · GOOGLE' },
+  { term: 'Customer Match', def: 'Upload your CRM data (hashed emails/phones) to Google Ads or Meta to target, exclude, or create similar audiences from your existing customer base.', platform: 'META · GOOGLE' },
+  { term: 'Frequency', def: 'Average number of times a unique user sees your ad within a time window. High frequency (>3–4) often signals audience fatigue and signals need for creative refresh.', platform: 'META' },
+  { term: 'Enhanced Conversions', def: 'Google feature that sends hashed first-party data alongside conversion tags to improve measurement accuracy. Can recover 5–10% of unmatched conversions.', platform: 'GOOGLE' },
+  { term: 'Seasonality Adjustment', def: 'Google Smart Bidding tool to inform the algorithm of expected changes in CVR during specific periods (e.g., sales events). Helps prevent under/over-spending.', platform: 'GOOGLE' },
+];
+function renderGlossary(search) {
+  const filtered = glossaryTerms.filter(t =>
+    t.term.toLowerCase().includes(search.toLowerCase()) ||
+    t.def.toLowerCase().includes(search.toLowerCase())
+  );
+  document.getElementById('glossaryList').innerHTML = filtered.map(t => `
+    <div class="glossary-item">
+      <div class="glossary-term">${t.term}</div>
+      <div class="glossary-def">${t.def}</div>
+      <div class="glossary-platform">${t.platform}</div>
+    </div>
+  `).join('');
+}
+function filterGlossary(val) { renderGlossary(val); }
+
+// ══════ INIT ══════
+loadLesson('pixel');
+renderTasks('all');
+renderShortcuts('meta');
+renderGlossary('');
+</script>
+</body>
+</html>
